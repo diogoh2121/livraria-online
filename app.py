@@ -30,6 +30,7 @@ class Livro(db.Model):
     nome = db.Column(db.String(100), nullable=False)
     arquivo = db.Column(db.String(200), nullable=False)
     capa = db.Column(db.String(200), nullable=False)
+    categoria = db.Column(db.String(50), nullable=False)  # Nova coluna para categoria
 
 # Função para verificar se o arquivo tem a extensão permitida
 def allowed_file(filename, file_type):
@@ -44,7 +45,16 @@ def allowed_file(filename, file_type):
 # Rota principal - Página inicial
 @app.route('/')
 def index():
-    livros = Livro.query.all()
+    query = request.args.get('query')  # Obter termo de pesquisa
+    categoria = request.args.get('categoria')  # Obter categoria selecionada
+
+    if query:
+        livros = Livro.query.filter(Livro.nome.contains(query)).all()
+    elif categoria:
+        livros = Livro.query.filter_by(categoria=categoria).all()
+    else:
+        livros = Livro.query.all()
+
     return render_template('index.html', livros=livros)
 
 # Rota para servir arquivos de livros
@@ -62,6 +72,7 @@ def servir_imagem(nome_arquivo):
 def adicionar_livro():
     if request.method == 'POST':
         nome_livro = request.form['nome']
+        categoria = request.form['categoria']  # Capturar a categoria selecionada
         arquivo_pdf = request.files.get('pdf')
         arquivo_epub = request.files.get('epub')
         capa_imagem = request.files.get('capa')
@@ -76,7 +87,7 @@ def adicionar_livro():
             caminho_imagem = os.path.join(app.config['UPLOAD_FOLDER_IMAGENS'], nome_arquivo_capa)
             capa_imagem.save(caminho_imagem)
 
-            novo_livro = Livro(nome=nome_livro, arquivo=nome_arquivo_pdf, capa=nome_arquivo_capa)
+            novo_livro = Livro(nome=nome_livro, arquivo=nome_arquivo_pdf, capa=nome_arquivo_capa, categoria=categoria)
             db.session.add(novo_livro)
             db.session.commit()
 
@@ -89,7 +100,7 @@ def adicionar_livro():
             caminho_imagem = os.path.join(app.config['UPLOAD_FOLDER_IMAGENS'], nome_arquivo_capa)
             capa_imagem.save(caminho_imagem)
 
-            novo_livro = Livro(nome=nome_livro, arquivo=nome_arquivo_epub, capa=nome_arquivo_capa)
+            novo_livro = Livro(nome=nome_livro, arquivo=nome_arquivo_epub, capa=nome_arquivo_capa, categoria=categoria)
             db.session.add(novo_livro)
             db.session.commit()
 
