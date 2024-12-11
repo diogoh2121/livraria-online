@@ -9,24 +9,35 @@
 <body>
     <header>
         <h1>Livraria Online</h1>
-        <a href="{{ url_for('adicionar_livro') }}">Adicionar Livro</a>
+        <a href="{{ url_for('adicionar_livro') }}" class="btn-adicionar">Adicionar Livro</a>
     </header>
 
-    <main>
-        <h2>Livros Disponíveis</h2>
-        <div class="livros">
-            {% for livro in livros %}
-            <div class="livro">
-                <img src="{{ url_for('servir_imagem', nome_arquivo=livro['capa']) }}" alt="{{ livro['nome'] }}" class="capa">
-                <h3>{{ livro['nome'] }}</h3>
-                <a href="{{ url_for('servir_livro', nome_arquivo=livro['arquivo']) }}" target="_blank">Ler Livro</a>
-            </div>
-            {% endfor %}
-        </div>
-    </main>
+    <form action="{{ url_for('index') }}" method="GET" class="search-bar">
+        <input type="text" name="query" placeholder="Pesquisar por nome do livro...">
+        <button type="submit">Pesquisar</button>
+    </form>
 
-    <footer>
-        <p>© 2024 Livraria Online. Todos os direitos reservados.</p>
-    </footer>
+    <nav>
+        <ul class="categories">
+            <li><a href="{{ url_for('index', categoria='') }}">Todos</a></li>
+            <li><a href="{{ url_for('index', categoria='Ficção') }}">Ficção</a></li>
+            <li><a href="{{ url_for('index', categoria='Fantasia') }}">Fantasia</a></li>
+            <li><a href="{{ url_for('index', categoria='Terror') }}">Terror</a></li>
+            <li><a href="{{ url_for('index', categoria='Educação') }}">Educação</a></li>
+            <li><a href="{{ url_for('index', categoria='Ciência') }}">Ciência</a></li>
+            <li><a href="{{ url_for('index', categoria='Outro') }}">Outro</a></li>
+        </ul>
+    </nav>
+
+    <div class="livros">
+        {% for livro in livros %}
+        <div class="livro">
+            <img src="{{ url_for('servir_imagem', nome_arquivo=livro.capa) }}" alt="{{ livro.nome }}" class="capa">
+            <h3>{{ livro.nome }}</h3>
+            <p>Categoria: {{ livro.categoria }}</p>
+            <a href="{{ url_for('servir_livro', nome_arquivo=livro.arquivo) }}" target="_blank">Ler Livro</a>
+        </div>
+        {% endfor %}
+    </div>
 </body>
 </html>
